@@ -37,3 +37,12 @@ group :test do
 end
 
 gem "faker", "~> 2.17"
+
+# HACK(bouk): Overwrite Bundler's platform matcher to ignore universal CPU
+# The protobuf and gRPC 'universal' macOS gems break on M1
+module Bundler::MatchPlatform
+  def match_platform(p)
+    return false if ::Gem::Platform === platform && platform.cpu == "universal"
+    Bundler::MatchPlatform.platforms_match?(platform, p)
+  end
+end
